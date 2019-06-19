@@ -6,6 +6,13 @@
 Write-Host "Windows 10 Start tile remover v1.0"
 Write-Host ""
 
+If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
+{   
+    $arguments = "& '" + $myinvocation.mycommand.definition + "'"
+    Start-Process powershell -Verb runAs -ArgumentList $arguments
+    Exit
+}
+
 $os = (Get-WmiObject win32_operatingsystem).caption
 If ($os.StartsWith("Microsoft Windows 10"))
 {
