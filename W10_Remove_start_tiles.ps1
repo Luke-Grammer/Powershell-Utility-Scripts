@@ -17,18 +17,33 @@ $os = (Get-WmiObject win32_operatingsystem).caption
 If ($os.StartsWith("Microsoft Windows 10"))
 {
     $choice = (Read-Host -Prompt "Would you like to remove all start tiles on this device? (y/n)").ToLower()
-    If ($choice -eq 'y' -OR $choice -eq 'yes')
+    If ($choice -eq "y" -OR $choice -eq "yes")
     {
-        Write-Host "Removing start tiles. . ."
-        (New-Object -Com Shell.Application).NameSpace('shell:::{4234d49b-0245-4df3-b780-3893943456e1}').Items() |
-          %{ $_.Verbs() } |
-          ?{$_.Name -match 'Un.*pin from Start'} |
-          %{$_.DoIt()}
+        $removed_items_count = 0
+        Write-Host ""
+        (New-Object -Com Shell.Application).NameSpace("shell:::{4234d49b-0245-4df3-b780-3893943456e1}").Items() |
+          %{  $app_name = $_.Name()
+              $_.Verbs() 
+           } |
+          ?{$_.Name -match "Un.*pin from Start"} |
+          %{
+              Write-Host "Removing " -NoNewline
+              $app_name
+              $_.DoIt()
+              $removed_items_count++
+           }
         Write-Host "Done!"
         Write-Host ""
+
+        If ($removed_items_count.Equals(0))
+        {
+            Write-Host "No start menu tiles removed."
+            Write-Host ""
+        }
     }
     Else
     {
+		Write-Host ""
         Write-Host "Operation terminated."
         Write-Host ""
     }
